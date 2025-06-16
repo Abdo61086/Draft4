@@ -1,4 +1,4 @@
-name: TicTacToe CI Pipeline
+name: Draft4 TicTacToe CI Pipeline
 
 on:
   push:
@@ -22,9 +22,10 @@ jobs:
     
     - name: Setup build environment
       run: |
+        # Create artifacts directory that doesn't exist in your repo
         mkdir -p artifacts
         mkdir -p build
-        chmod -R 755 . || true
+        chmod -R 755 . 2>/dev/null || true
       shell: bash
     
     - name: Install Qt and dependencies (Ubuntu)
@@ -59,11 +60,17 @@ jobs:
       if: matrix.os == 'windows-latest'
       uses: ilammy/msvc-dev-cmd@v1
     
-    - name: Create CMakeLists.txt for your exact file structure
+    - name: List all files in your repository
+      run: |
+        echo "=== ALL FILES IN DRAFT4 REPOSITORY ==="
+        find . -type f -name "*.cpp" -o -name "*.h" -o -name "*.ui" -o -name "*.db" -o -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" | head -50
+      shell: bash
+    
+    - name: Create CMakeLists.txt for your exact Draft4 structure
       run: |
         cat > CMakeLists.txt << 'EOF'
         cmake_minimum_required(VERSION 3.16)
-        project(TicTacToe VERSION 1.0.0)
+        project(Draft4TicTacToe VERSION 1.0.0)
         
         set(CMAKE_CXX_STANDARD 17)
         set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -76,7 +83,7 @@ jobs:
         set(CMAKE_AUTOUIC ON)
         set(CMAKE_AUTORCC ON)
         
-        # All your source files exactly as they are in root directory
+        # All your source files from Draft4 repository (root directory)
         set(SOURCES
             main.cpp
             App.cpp
@@ -109,137 +116,3 @@ jobs:
             tictactoewidget.h
             userprofile.h
         )
-        
-        set(UI_FILES
-            choosedifficulty.ui
-            gamehistory.ui
-            gamemodewindow.ui
-            gameplaywindow.ui
-            loginpage.ui
-            mainwindow.ui
-            playerselection.ui
-            signupform.ui
-            statisticswindow.ui
-            userprofile.ui
-        )
-        
-        # Create executable
-        add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS} ${UI_FILES})
-        
-        # Link Qt5 libraries
-        target_link_libraries(${PROJECT_NAME} 
-            Qt5::Core 
-            Qt5::Widgets 
-            Qt5::Sql
-        )
-        
-        # Set properties
-        set_target_properties(${PROJECT_NAME} PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
-        )
-        
-        # Copy database to build directory
-        configure_file(${CMAKE_SOURCE_DIR}/TicTacToe.db ${CMAKE_BINARY_DIR}/TicTacToe.db COPYONLY)
-        EOF
-    
-    - name: Configure CMake
-      run: |
-        cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${{ env.CMAKE_PREFIX_PATH }}" -DQt5_DIR="${{ env.Qt5_DIR }}"
-    
-    - name: Build application
-      run: |
-        cmake --build build --config Release --verbose
-    
-    - name: Create artifacts with all your files
-      run: |
-        echo "=== CREATING ARTIFACTS FOR ${{ matrix.os }} ==="
-        
-        # Clean artifacts directory
-        rm -rf artifacts 2>/dev/null || true
-        mkdir -p artifacts
-        
-        # Copy executable based on platform
-        EXECUTABLE_FOUND=false
-        
-        if [ "${{ matrix.os }}" = "windows-latest" ]; then
-          find build/ -name "*.exe" -type f -exec cp {} artifacts/TicTacToe.exe \; 2>/dev/null && EXECUTABLE_FOUND=true
-          # Copy Qt DLLs
-          if [ -d "C:/Qt/5.15.2/msvc2019_64/bin" ]; then
-            cp C:/Qt/5.15.2/msvc2019_64/bin/Qt5Core.dll artifacts/ 2>/dev/null || true
-            cp C:/Qt/5.15.2/msvc2019_64/bin/Qt5Widgets.dll artifacts/ 2>/dev/null || true
-            cp C:/Qt/5.15.2/msvc2019_64/bin/Qt5Gui.dll artifacts/ 2>/dev/null || true
-            cp C:/Qt/5.15.2/msvc2019_64/bin/Qt5Sql.dll artifacts/ 2>/dev/null || true
-          fi
-        elif [ "${{ matrix.os }}" = "macos-latest" ]; then
-          find build/ -name "TicTacToe" -type f -exec cp {} artifacts/TicTacToe \; 2>/dev/null && EXECUTABLE_FOUND=true
-        else
-          find build/ -name "TicTacToe" -type f -exec cp {} artifacts/TicTacToe \; 2>/dev/null && EXECUTABLE_FOUND=true
-        fi
-        
-        # Copy all your image files exactly as they are
-        cp "00_Main_Menu.png" artifacts/ 2>/dev/null || true
-        cp "01_Login.png" artifacts/ 2>/dev/null || true
-        cp "02_SignUp.png" artifacts/ 2>/dev/null || true
-        cp "04_Single_Player(2) (1).png" artifacts/ 2>/dev/null || true
-        cp "05_Multiplayer_WhoisX.png" artifacts/ 2>/dev/null || true
-        cp "06_Multiplayer_Board.png" artifacts/ 2>/dev/null || true
-        cp "07_Singleplayer_WhoisX.png" artifacts/ 2>/dev/null || true
-        cp "1st_User_profile.png" artifacts/ 2>/dev/null || true
-        cp "2nd_User_profile.png" artifacts/ 2>/dev/null || true
-        cp "ChooseMode.png" artifacts/ 2>/dev/null || true
-        cp "Designer.jpeg" artifacts/ 2>/dev/null || true
-        
-        # Copy database
-        cp "TicTacToe.db" artifacts/ 2>/dev/null || true
-        
-        # Create build report
-        cat > artifacts/BUILD_REPORT.txt << EOL
-        ==========================================
-        🎮 TIC TAC TOE GAME BUILD REPORT 🎮
-        ==========================================
-        Platform: ${{ matrix.os }}
-        Build Date: $(date)
-        Qt Version: 5.15.2
-        Build Status: ✅ SUCCESS
-        Executable Found: ${EXECUTABLE_FOUND}
-        
-        Complete game package includes:
-        - Game executable
-        - Database (TicTacToe.db)
-        - All UI screenshots and images
-        - All game components
-        
-        Ready for deployment!
-        ==========================================
-        EOL
-        
-        # Create success markers
-        touch "artifacts/BUILD_SUCCESS_${{ matrix.os }}.marker"
-        echo "Build completed successfully on ${{ matrix.os }}" > artifacts/build-status.txt
-        
-        # Guarantee artifacts exist
-        echo "TicTacToe Game Package - ${{ matrix.os }}" > artifacts/README.txt
-        echo "Built on: $(date)" >> artifacts/README.txt
-        
-        echo "=== FINAL ARTIFACTS ==="
-        ls -la artifacts/
-        echo "Total files: $(ls -1 artifacts/ | wc -l)"
-      shell: bash
-    
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: tictactoe-game-${{ matrix.os }}
-        path: artifacts/
-        retention-days: 30
-        if-no-files-found: error
-    
-    - name: Build verification
-      run: |
-        echo "🎉 TIC TAC TOE BUILD COMPLETED FOR ${{ matrix.os }}"
-        echo "✅ All source files processed"
-        echo "✅ All images and resources included"
-        echo "✅ Database included"
-        echo "✅ Artifacts uploaded successfully"
-      shell: bash
