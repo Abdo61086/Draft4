@@ -113,8 +113,8 @@ unsigned char TicTacToe::getCell(unsigned char row, unsigned char col) const {
 
 int TicTacToe::minimax(vector<vector<unsigned char>>& board, int depth, bool isMaximizing, int alpha, int beta, unsigned char state_F) {
     unsigned char opponent = (state_F == PLAYER_X) ? PLAYER_O : PLAYER_X;
-    if(difficulty==EASY)
-    {
+
+    if (difficulty == EASY) {
         if (isBoardFull(board)) {
             return 0;
         }
@@ -154,9 +154,7 @@ int TicTacToe::minimax(vector<vector<unsigned char>>& board, int depth, bool isM
             }
             return bestScore;
         }
-    }
-    else if(difficulty==HARD)
-    {
+    } else if (difficulty == HARD) {
         int boardVal = evaluateBoard(board, state_F);
         if (boardVal == 10 || boardVal == -10) {
             return boardVal;
@@ -201,7 +199,11 @@ int TicTacToe::minimax(vector<vector<unsigned char>>& board, int depth, bool isM
             return bestScore;
         }
     }
+
+    // Default return value (if difficulty is not EASY or HARD)
+    return 0;
 }
+
 int TicTacToe::evaluateBoard(const vector<vector<unsigned char>> &board, unsigned char state_F) {
     // Evaluate rows, columns, and diagonals for wins
     // Return +10 if 'state_F' wins, -10 if opponent wins, and 0 for no win
