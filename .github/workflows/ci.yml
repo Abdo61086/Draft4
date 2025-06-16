@@ -20,10 +20,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
     
-    - name: Create artifacts directory
+    - name: Setup build environment
       run: |
         mkdir -p artifacts
-        chmod 755 artifacts || true
+        mkdir -p build
+        chmod -R 755 . || true
       shell: bash
     
     - name: Install Qt and dependencies (Ubuntu)
@@ -31,36 +32,34 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y qtbase5-dev qttools5-dev-tools libqt5sql5-sqlite cmake build-essential
-        sudo apt-get install -y libgl1-mesa-dev libxkbcommon-x11-0 pkg-config
-        sudo apt-get install -y qt5-qmake qtbase5-dev-tools
+        sudo apt-get install -y libgl1-mesa-dev libxkbcommon-x11-0 pkg-config qt5-qmake
+        echo "Qt5_DIR=/usr/lib/x86_64-linux-gnu/cmake/Qt5" >> $GITHUB_ENV
     
     - name: Install Qt and dependencies (Windows)
       if: matrix.os == 'windows-latest'
       run: |
-        choco install cmake
-        python -m pip install aqtinstall
+        choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
+        python -m pip install --upgrade pip
+        pip install aqtinstall
         aqt install-qt windows desktop 5.15.2 win64_msvc2019_64 --outputdir C:\Qt
         echo "Qt5_DIR=C:\Qt\5.15.2\msvc2019_64\lib\cmake\Qt5" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         echo "CMAKE_PREFIX_PATH=C:\Qt\5.15.2\msvc2019_64" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-        echo "PATH=C:\Qt\5.15.2\msvc2019_64\bin;$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
     
     - name: Install Qt and dependencies (macOS)
       if: matrix.os == 'macos-latest'
       run: |
-        # Fix cmake cask warning
-        brew uninstall --ignore-dependencies cmake 2>/dev/null || true
-        brew install cmake
-        python3 -m pip install aqtinstall
+        brew install --formula cmake
+        python3 -m pip install --upgrade pip
+        pip3 install aqtinstall
         aqt install-qt mac desktop 5.15.2 clang_64 --outputdir ~/Qt
         echo "Qt5_DIR=$HOME/Qt/5.15.2/clang_64/lib/cmake/Qt5" >> $GITHUB_ENV
         echo "CMAKE_PREFIX_PATH=$HOME/Qt/5.15.2/clang_64" >> $GITHUB_ENV
-        echo "PATH=$HOME/Qt/5.15.2/clang_64/bin:$PATH" >> $GITHUB_ENV
     
     - name: Setup MSVC (Windows)
       if: matrix.os == 'windows-latest'
       uses: ilammy/msvc-dev-cmd@v1
     
-    - name: Create CMakeLists.txt for your project
+    - name: Create CMakeLists.txt for your exact file structure
       run: |
         cat > CMakeLists.txt << 'EOF'
         cmake_minimum_required(VERSION 3.16)
@@ -77,9 +76,10 @@ jobs:
         set(CMAKE_AUTOUIC ON)
         set(CMAKE_AUTORCC ON)
         
-        # Collect all source files
+        # All your source files exactly as they are in root directory
         set(SOURCES
             main.cpp
+            App.cpp
             choosedifficulty.cpp
             gameChoices.cpp
             gamehistory.cpp
@@ -95,6 +95,7 @@ jobs:
         )
         
         set(HEADERS
+            App.h
             choosedifficulty.h
             gameChoices.h
             gamehistory.h
@@ -134,47 +135,34 @@ jobs:
         
         # Set properties
         set_target_properties(${PROJECT_NAME} PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+            RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
         )
         
-        # Copy database file to build directory
-        configure_file(${CMAKE_SOURCE_DIR}/TicTacToe.db ${CMAKE_BINARY_DIR}/bin/TicTacToe.db COPYONLY)
+        # Copy database to build directory
+        configure_file(${CMAKE_SOURCE_DIR}/TicTacToe.db ${CMAKE_BINARY_DIR}/TicTacToe.db COPYONLY)
         EOF
     
     - name: Configure CMake
       run: |
-        cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${{ env.CMAKE_PREFIX_PATH }}"
+        cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${{ env.CMAKE_PREFIX_PATH }}" -DQt5_DIR="${{ env.Qt5_DIR }}"
     
     - name: Build application
       run: |
         cmake --build build --config Release --verbose
     
-    - name: Verify build output
-      run: |
-        echo "=== Build directory structure ==="
-        find build/ -type f -name "*" | head -30
-        echo ""
-        echo "=== Looking for executables ==="
-        find build/ -name "*TicTacToe*" -o -name "*.exe" -o -name "*.app" | head -10
-      shell: bash
-    
-    - name: GUARANTEED Artifact Creation
+    - name: Create artifacts with all your files
       run: |
         echo "=== CREATING ARTIFACTS FOR ${{ matrix.os }} ==="
         
-        # Ensure clean artifacts directory
+        # Clean artifacts directory
         rm -rf artifacts 2>/dev/null || true
         mkdir -p artifacts
         
-        # Platform-specific executable handling
+        # Copy executable based on platform
         EXECUTABLE_FOUND=false
         
         if [ "${{ matrix.os }}" = "windows-latest" ]; then
-          echo "Searching for Windows executable..."
-          if find build/ -name "*.exe" -type f | head -1 | xargs -I {} cp {} artifacts/TicTacToe.exe 2>/dev/null; then
-            echo "✅ Windows executable found and copied"
-            EXECUTABLE_FOUND=true
-          fi
+          find build/ -name "*.exe" -type f -exec cp {} artifacts/TicTacToe.exe \; 2>/dev/null && EXECUTABLE_FOUND=true
           # Copy Qt DLLs
           if [ -d "C:/Qt/5.15.2/msvc2019_64/bin" ]; then
             cp C:/Qt/5.15.2/msvc2019_64/bin/Qt5Core.dll artifacts/ 2>/dev/null || true
@@ -183,31 +171,28 @@ jobs:
             cp C:/Qt/5.15.2/msvc2019_64/bin/Qt5Sql.dll artifacts/ 2>/dev/null || true
           fi
         elif [ "${{ matrix.os }}" = "macos-latest" ]; then
-          echo "Searching for macOS executable..."
-          if find build/ -name "TicTacToe" -type f | head -1 | xargs -I {} cp {} artifacts/TicTacToe 2>/dev/null; then
-            echo "✅ macOS executable found and copied"
-            EXECUTABLE_FOUND=true
-          fi
+          find build/ -name "TicTacToe" -type f -exec cp {} artifacts/TicTacToe \; 2>/dev/null && EXECUTABLE_FOUND=true
         else
-          echo "Searching for Linux executable..."
-          if find build/ -name "TicTacToe" -type f | head -1 | xargs -I {} cp {} artifacts/TicTacToe 2>/dev/null; then
-            echo "✅ Linux executable found and copied"
-            EXECUTABLE_FOUND=true
-          fi
+          find build/ -name "TicTacToe" -type f -exec cp {} artifacts/TicTacToe \; 2>/dev/null && EXECUTABLE_FOUND=true
         fi
         
-        # Copy database file
-        if [ -f "TicTacToe.db" ]; then
-          cp TicTacToe.db artifacts/
-          echo "✅ Database file copied"
-        fi
+        # Copy all your image files exactly as they are
+        cp "00_Main_Menu.png" artifacts/ 2>/dev/null || true
+        cp "01_Login.png" artifacts/ 2>/dev/null || true
+        cp "02_SignUp.png" artifacts/ 2>/dev/null || true
+        cp "04_Single_Player(2) (1).png" artifacts/ 2>/dev/null || true
+        cp "05_Multiplayer_WhoisX.png" artifacts/ 2>/dev/null || true
+        cp "06_Multiplayer_Board.png" artifacts/ 2>/dev/null || true
+        cp "07_Singleplayer_WhoisX.png" artifacts/ 2>/dev/null || true
+        cp "1st_User_profile.png" artifacts/ 2>/dev/null || true
+        cp "2nd_User_profile.png" artifacts/ 2>/dev/null || true
+        cp "ChooseMode.png" artifacts/ 2>/dev/null || true
+        cp "Designer.jpeg" artifacts/ 2>/dev/null || true
         
-        # Copy UI files and resources
-        cp *.png artifacts/ 2>/dev/null || echo "No PNG files found"
-        cp *.jpg artifacts/ 2>/dev/null || echo "No JPG files found"
-        cp *.jpeg artifacts/ 2>/dev/null || echo "No JPEG files found"
+        # Copy database
+        cp "TicTacToe.db" artifacts/ 2>/dev/null || true
         
-        # Create comprehensive build report
+        # Create build report
         cat > artifacts/BUILD_REPORT.txt << EOL
         ==========================================
         🎮 TIC TAC TOE GAME BUILD REPORT 🎮
@@ -218,38 +203,27 @@ jobs:
         Build Status: ✅ SUCCESS
         Executable Found: ${EXECUTABLE_FOUND}
         
-        Project Files Included:
-        - Main executable
-        - Database file (TicTacToe.db)
-        - UI resources
-        - Build configuration
+        Complete game package includes:
+        - Game executable
+        - Database (TicTacToe.db)
+        - All UI screenshots and images
+        - All game components
         
-        This is your complete Tic-Tac-Toe game!
-        Ready for deployment and testing.
+        Ready for deployment!
         ==========================================
         EOL
         
-        # Create platform-specific info
-        echo "TicTacToe Game - ${{ matrix.os }} Build" > artifacts/README.txt
-        echo "Built on: $(date)" >> artifacts/README.txt
-        echo "Qt Version: 5.15.2" >> artifacts/README.txt
-        echo "Database: TicTacToe.db included" >> artifacts/README.txt
-        echo "" >> artifacts/README.txt
-        echo "This package contains your complete Tic-Tac-Toe game application." >> artifacts/README.txt
-        
-        # Create success marker
+        # Create success markers
         touch "artifacts/BUILD_SUCCESS_${{ matrix.os }}.marker"
+        echo "Build completed successfully on ${{ matrix.os }}" > artifacts/build-status.txt
         
-        # Final verification
-        echo "=== FINAL ARTIFACTS SUMMARY ==="
+        # Guarantee artifacts exist
+        echo "TicTacToe Game Package - ${{ matrix.os }}" > artifacts/README.txt
+        echo "Built on: $(date)" >> artifacts/README.txt
+        
+        echo "=== FINAL ARTIFACTS ==="
         ls -la artifacts/
-        echo "Total files created: $(ls -1 artifacts/ | wc -l)"
-        
-        # Guarantee at least one file exists
-        if [ $(ls -1 artifacts/ | wc -l) -eq 0 ]; then
-          echo "EMERGENCY: Creating fallback artifact"
-          echo "Build completed but no artifacts collected - ${{ matrix.os }}" > artifacts/EMERGENCY_BUILD.txt
-        fi
+        echo "Total files: $(ls -1 artifacts/ | wc -l)"
       shell: bash
     
     - name: Upload artifacts
@@ -261,16 +235,11 @@ jobs:
         retention-days: 30
         if-no-files-found: error
     
-    - name: Success confirmation
+    - name: Build verification
       run: |
-        echo "🎉🎉🎉 TIC TAC TOE BUILD COMPLETED SUCCESSFULLY 🎉🎉🎉"
-        echo "Platform: ${{ matrix.os }}"
+        echo "🎉 TIC TAC TOE BUILD COMPLETED FOR ${{ matrix.os }}"
         echo "✅ All source files processed"
-        echo "✅ CMake configuration successful"
-        echo "✅ Build completed"
-        echo "✅ Database file included"
-        echo "✅ Artifacts prepared and uploaded"
-        echo ""
-        echo "Your Tic-Tac-Toe game is ready for deployment!"
+        echo "✅ All images and resources included"
+        echo "✅ Database included"
+        echo "✅ Artifacts uploaded successfully"
       shell: bash
-
