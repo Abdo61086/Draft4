@@ -1,0 +1,96 @@
+name: CI/CD Pipeline for Tic-Tac-Toe
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Install Qt and dependencies
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '5.15.2'
+          modules: 'qtbase qttools'
+          cached: 'true'
+
+      # Install additional dependencies
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libgl1-mesa-dev sqlite3 libsqlite3-dev
+
+      # Set up SQLite database (if needed for game history)
+      - name: Set up SQLite database
+        run: |
+          sqlite3 game_history.db < schema.sql
+        if: exists('schema.sql')
+
+      # Build the project
+      - name: Build project
+        run: |
+          mkdir build
+          cd build
+          qmake ../TicTacToe.pro
+          make -j$(nproc)
+
+      # Run tests
+      - name: Run tests
+        run: |
+          cd build
+          ./tst_test1
+
+      # Archive build artifacts
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tictactoe-binaries
+          path: |
+            build/TicTacToe
+            build/tst_test1
+          retention-days: 7
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      # Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Download artifacts
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: tictactoe-binaries
+          path: artifacts/
+
+      # Make artifacts executable
+      - name: Make artifacts executable
+        run: chmod +x artifacts/*
+
+      # Placeholder for deployment (e.g., to a server or package registry)
+      - name: Deploy artifacts
+        run: |
+          echo "Deploying artifacts from artifacts/ directory"
+          # Add deployment steps here, e.g., SCP to a server or push to a package registry
+          # Example: scp artifacts/TicTacToe user@server:/path/to/deploy
+        env:
+          DEPLOY_SERVER: ${{ secrets.DEPLOY_SERVER }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
