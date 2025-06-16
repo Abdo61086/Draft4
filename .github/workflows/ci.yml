@@ -16,15 +16,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Set Up C++ Compiler
-        uses: actions/setup-cpp@v2
-        with:
-          compiler: gcc
-
-      - name: Install Dependencies
+      - name: Install Required Tools and Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y qtbase5-dev qt5-qmake libqt5sql5 libqt5sql5-sqlite
+          sudo apt-get install -y g++ gcc qtbase5-dev qt5-qmake libqt5sql5 libqt5sql5-sqlite
 
       - name: Build Project
         run: |
