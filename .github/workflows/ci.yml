@@ -1,179 +1,35 @@
-name: Draft4 TicTacToe CI Pipeline
+name: CI Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build-and-test:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    
-    timeout-minutes: 30
-    
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-    
-    - name: Create artifacts directory
-      run: |
-        mkdir -p artifacts
-        echo "Artifacts directory created"
-      shell: bash
-    
-    - name: Install Qt (Ubuntu)
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y qtbase5-dev qttools5-dev-tools cmake build-essential
-        sudo apt-get install -y libqt5sql5-sqlite libgl1-mesa-dev
-    
-    - name: Install Qt (Windows)
-      if: matrix.os == 'windows-latest'
-      run: |
-        choco install cmake
-        echo "Windows dependencies installed"
-    
-    - name: Install Qt (macOS)
-      if: matrix.os == 'macos-latest'
-      run: |
-        brew install cmake qt@5
-        echo 'export PATH="/usr/local/opt/qt@5/bin:$PATH"' >> ~/.bash_profile
-        export PATH="/usr/local/opt/qt@5/bin:$PATH"
-    
-    - name: Create simple CMakeLists.txt
-      run: |
-        cat > CMakeLists.txt << 'EOF'
-        cmake_minimum_required(VERSION 3.16)
-        project(Draft4TicTacToe VERSION 1.0.0)
-        
-        set(CMAKE_CXX_STANDARD 17)
-        set(CMAKE_CXX_STANDARD_REQUIRED ON)
-        
-        # Try to find Qt5, but don't fail if not found
-        find_package(Qt5 COMPONENTS Core Widgets Sql QUIET)
-        
-        if(Qt5_FOUND)
-            set(CMAKE_AUTOMOC ON)
-            set(CMAKE_AUTOUIC ON)
-            set(CMAKE_AUTORCC ON)
-            
-            # Only include files that exist
-            set(SOURCES main.cpp)
-            if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/App.cpp")
-                list(APPEND SOURCES App.cpp)
-            endif()
-            
-            add_executable(${PROJECT_NAME} ${SOURCES})
-            
-            if(Qt5_FOUND)
-                target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Widgets Qt5::Sql)
-            endif()
-        else()
-            # Create a simple executable even without Qt
-            add_executable(${PROJECT_NAME} main.cpp)
-        endif()
-        EOF
-    
-    - name: Create fallback main.cpp if needed
-      run: |
-        if [ ! -f "main.cpp" ]; then
-          cat > main.cpp << 'EOF'
-        #include <iostream>
-        
-        int main(int argc, char* argv[]) {
-            std::cout << "Draft4 TicTacToe - Build Test Successful!" << std::endl;
-            return 0;
-        }
-        EOF
-        fi
-      shell: bash
-    
-    - name: Configure CMake
-      run: |
-        cmake -B build -DCMAKE_BUILD_TYPE=Release
-      continue-on-error: true
-    
-    - name: Build application
-      run: |
-        cmake --build build --config Release
-      continue-on-error: true
-    
-    - name: GUARANTEED Artifact Creation
-      run: |
-        echo "=== CREATING GUARANTEED ARTIFACTS FOR ${{ matrix.os }} ==="
-        
-        # Ensure artifacts directory exists and is writable
-        rm -rf artifacts 2>/dev/null || true
-        mkdir -p artifacts
-        chmod 755 artifacts
-        
-        # Copy executable if it exists
-        if [ "${{ matrix.os }}" = "windows-latest" ]; then
-          find build/ -name "*.exe" -exec cp {} artifacts/Draft4TicTacToe.exe \; 2>/dev/null || echo "No exe found"
-        else
-          find build/ -name "Draft4TicTacToe" -exec cp {} artifacts/Draft4TicTacToe \; 2>/dev/null || echo "No binary found"
-        fi
-        
-        # Copy all your project files
-        cp "TicTacToe.db" artifacts/ 2>/dev/null || echo "Database not found"
-        cp *.png artifacts/ 2>/dev/null || echo "No PNG files found"
-        cp *.jpeg artifacts/ 2>/dev/null || echo "No JPEG files found"
-        cp *.jpg artifacts/ 2>/dev/null || echo "No JPG files found"
-        
-        # ALWAYS create these essential files
-        echo "Draft4 TicTacToe Build Report" > artifacts/BUILD_REPORT.txt
-        echo "=========================" >> artifacts/BUILD_REPORT.txt
-        echo "Platform: ${{ matrix.os }}" >> artifacts/BUILD_REPORT.txt
-        echo "Build Date: $(date)" >> artifacts/BUILD_REPORT.txt
-        echo "Status: SUCCESS ✅" >> artifacts/BUILD_REPORT.txt
-        echo "Repository: Draft4" >> artifacts/BUILD_REPORT.txt
-        
-        echo "Draft4 TicTacToe Game Package" > artifacts/README.txt
-        echo "Platform: ${{ matrix.os }}" >> artifacts/README.txt
-        echo "Built successfully with GitHub Actions" >> artifacts/README.txt
-        
-        echo "Build completed successfully" > artifacts/build-status.txt
-        echo "SUCCESS" > artifacts/result.txt
-        touch artifacts/build-marker.txt
-        
-        # Create platform-specific file
-        echo "Build completed on ${{ matrix.os }} at $(date)" > "artifacts/build-${{ matrix.os }}.log"
-        
-        # Verify artifacts exist
-        echo "=== FINAL ARTIFACTS VERIFICATION ==="
-        ls -la artifacts/
-        echo "Total files created: $(ls -1 artifacts/ | wc -l)"
-        
-        # Emergency guarantee - if somehow no files exist
-        if [ $(ls -1 artifacts/ | wc -l) -eq 0 ]; then
-          echo "EMERGENCY: Creating fallback files"
-          echo "Emergency build artifact for ${{ matrix.os }}" > artifacts/emergency.txt
-          touch artifacts/emergency-marker.txt
-        fi
-      shell: bash
-    
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: draft4-tictactoe-${{ matrix.os }}
-        path: artifacts/
-        retention-days: 30
-        if-no-files-found: ignore
-    
-    - name: Build summary
-      run: |
-        echo "🎉 BUILD COMPLETED FOR ${{ matrix.os }}"
-        echo "✅ All errors resolved"
-        echo "✅ Artifacts created: $(ls -1 artifacts/ | wc -l) files"
-        echo "✅ Pipeline successful"
-      shell: bash
+    runs-on: ubuntu-latest
 
-        echo "✅ Pipeline successful"
-      shell: bash
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set Up C++ Compiler
+        uses: actions/setup-cpp@v2
+        with:
+          compiler: gcc
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qtbase5-dev qt5-qmake libqt5sql5 libqt5sql5-sqlite
+
+      - name: Build Project
+        run: |
+          qmake
+          make
+
+      - name: Run Unit Tests
+        run: ./tests/unit_tests
