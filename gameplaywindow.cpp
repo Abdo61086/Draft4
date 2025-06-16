@@ -348,131 +348,116 @@ void GameplayWindow::on_pushButton_3_clicked()
     gamehistory->show();
     this->hide();
 }
-void GameplayWindow::setHistory()
-{
-    QString Switch ;
+void GameplayWindow::setHistory() {
+    QString Switch;
     unsigned char swap;
     swap = numberofplays[5];
-    numberofplays[5]=numberofplays[3];
-    numberofplays[3] =swap;
-    swap =Player1State[4];
-    Player1State[4]=Player1State[6];
-    Player1State[6]=swap;
-    swap =Player2State[4];
-    Player2State[4]=Player2State[6];
-    Player2State[6]=swap;
-    for(int i =6;i>0;i--)
-    {
-        Player1State[i]=Player1State[i-1];
-        Player2State[i]=Player2State[i-1];
+    numberofplays[5] = numberofplays[3];
+    numberofplays[3] = swap;
+    swap = Player1State[4];
+    Player1State[4] = Player1State[6];
+    Player1State[6] = swap;
+    swap = Player2State[4];
+    Player2State[4] = Player2State[6];
+    Player2State[6] = swap;
+
+    for (int i = 6; i > 0; i--) {
+        Player1State[i] = Player1State[i - 1];
+        Player2State[i] = Player2State[i - 1];
     }
-    for(int row=0;row<3;row++)
-    {
-        for(int col=0;col<3;col++)
-        {
+
+    for (int row = 0; row < 3; row++) {
+        for (int col = 0; col < 3; col++) {
             Switch = buttons_history1[3][row][col];
-            buttons_history1[3][row][col] = buttons_history1[5][row][col] ;
+            buttons_history1[3][row][col] = buttons_history1[5][row][col];
             buttons_history1[5][row][col] = Switch;
         }
     }
-    for(int i=0;i<9;i++)
-    {
+
+    for (int i = 0; i < 9; i++) {
         swap = replay[4][i];
-        replay[4][i]=replay[6][i];
-        replay[6][i]=swap;
+        replay[4][i] = replay[6][i];
+        replay[6][i] = swap;
     }
-    for(int index=5;index>0;index--)
-    {
-        for(int row=0;row<3;row++)
-        {
-            for(int col=0;col<3;col++)
-            {
-               buttons_history1[index][row][col] =buttons_history1[index-1][row][col];
+
+    for (int index = 5; index > 0; index--) {
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                buttons_history1[index][row][col] = buttons_history1[index - 1][row][col];
             }
         }
     }
-        for(int row=0;row<3;row++)
-        {
-            for(int col=0;col<3;col++)
-            {
-                buttons_history1[0][row][col] =buttons[row][col]->text();
+
+    for (int row = 0; row < 3; row++) {
+        for (int col = 0; col < 3; col++) {
+            buttons_history1[0][row][col] = buttons[row][col]->text();
+        }
+    }
+
+    for (int row = 0; row < 3; ++row) {
+        for (int col = 0; col < 3; ++col) {
+            buttons_history1[0][row][col] = buttons[row][col]->text();
+            gameData.append(buttons_history1[0][row][col]);
+            if (!(row == 2 && col == 2)) {
+                gameData.append(",");
             }
         }
-        for (int row = 0; row < 3; ++row) {
-            for (int col = 0; col < 3; ++col) {
-                buttons_history1[0][row][col] = buttons[row][col]->text();
-                gameData.append(buttons_history1[0][row][col]);
-                if (!(row == 2 && col == 2)) {
-                    gameData.append(",");
-                }
-            }
-            if (row < 2) {
-                gameData.append(";");
-            }
+        if (row < 2) {
+            gameData.append(";");
         }
+    }
 
-       for(int row=0;row<3;row++)
-       {
-          for(int col=0;col<3;col++)
-            {
-              Switch = buttons_history1[3][row][col];
-              buttons_history1[3][row][col] = buttons_history1[5][row][col] ;
-              buttons_history1[5][row][col] = Switch;
-           }
-       }
-   for(int j=5;j>0;j--)
-   {
-       for(int i=0;i<9;i++)
-       {
-           replay[j][i]= replay[j-1][i];
-       }
-       numberofplays[j]=numberofplays[j-1];
+    for (int row = 0; row < 3; row++) {
+        for (int col = 0; col < 3; col++) {
+            Switch = buttons_history1[3][row][col];
+            buttons_history1[3][row][col] = buttons_history1[5][row][col];
+            buttons_history1[5][row][col] = Switch;
+        }
+    }
 
-   }
-   QString replayData;
-   for (int i = 0; i < 9; ++i) {
-       replayData.append(QString::number(replay[0][i]));
-       if (i < 8) {
-           replayData.append(",");
-       }
-   }
-       for(int i=0;i<9;i++)
-       {
-           swap = replay[4][i];
-           replay[4][i]=replay[6][i];
-           replay[6][i]=swap;
-       }
-       numberofplays[0]=playindex;
-       playindex=0;
-       swap = numberofplays[5];
-       numberofplays[5]=numberofplays[3];
-       numberofplays[3] =swap;
-       swap =Player1State[4];
-       Player1State[4]=Player1State[6];
-       Player1State[6]=swap;
-       swap =Player2State[4];
-       Player2State[4]=Player2State[6];
-       Player2State[6]=swap;
-       storeGameHistory(username1, gameData,replayData);
-       if(GameMode==MULTIPLAYER_MODE)
-        storeGameHistory(username, gameData,replayData);
-       gameData=0;
-       replayData=0;
+    for (int j = 5; j > 0; j--) {
+        for (int i = 0; i < 9; i++) {
+            replay[j][i] = replay[j - 1][i];
+        }
+        numberofplays[j] = numberofplays[j - 1];
+    }
+
+    QString replayData;
+    for (int i = 0; i < 9; ++i) {
+        replayData.append(QString::number(replay[0][i]));
+        if (i < 8) {
+            replayData.append(",");
+        }
+    }
+
+    for (int i = 0; i < 9; i++) {
+        swap = replay[4][i];
+        replay[4][i] = replay[6][i];
+        replay[6][i] = swap;
+    }
+
+    numberofplays[0] = playindex;
+    playindex = 0;
+    swap = numberofplays[5];
+    numberofplays[5] = numberofplays[3];
+    numberofplays[3] = swap;
+    swap = Player1State[4];
+    Player1State[4] = Player1State[6];
+    Player1State[6] = swap;
+    swap = Player2State[4];
+    Player2State[4] = Player2State[6];
+    Player2State[6] = swap;
+
+    storeGameHistory(username1, gameData, replayData);
+
+    if (GameMode == MULTIPLAYER_MODE) {
+        storeGameHistory(username, gameData, replayData);
+    }
+
+    gameData.clear();
+    replayData.clear();
 }
 
-void GameplayWindow::ClearBoard()
-{
-    for(int row = 0; row < 3; ++row)
-    {
-        for(int col = 0; col < 3; ++col)
-        {
-            buttons[row][col]->setText("");
-        }
-    }
-    game.clearBoard(game.board);
-    game.setCurrentPlayer();
-    GameState = GAME_RUNNING;
-}
 void GameplayWindow::storeGameHistory(const QString& username1, const QString& gameData, const QString& replayData)
 {
     QSqlQuery query;
