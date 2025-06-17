@@ -647,4 +647,15 @@ void GameplayWindow::setStats()
 
     trig = -1; // Reset trig after updating statistics
 }
+void GameplayWindow::ClearBoard()
+{
+    for (int row = 0; row < 3; ++row) {
+        for (int col = 0; col < 3; ++col) {
+            buttons[row][col]->setText("");
+        }
+    }
+    game.clearBoard(game.board);
+    game.setCurrentPlayer();
+    GameState = GAME_RUNNING;
+}
 
