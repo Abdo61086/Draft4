@@ -35,8 +35,8 @@ border:none
   <widget class="QLabel" name="wins">
    <property name="geometry">
     <rect>
-     <x>390</x>
-     <y>400</y>
+     <x>420</x>
+     <y>440</y>
      <width>63</width>
      <height>20</height>
     </rect>
@@ -54,8 +54,8 @@ border:none
   <widget class="QLabel" name="losses">
    <property name="geometry">
     <rect>
-     <x>220</x>
-     <y>450</y>
+     <x>230</x>
+     <y>440</y>
      <width>63</width>
      <height>20</height>
     </rect>
@@ -73,8 +73,8 @@ border:none
   <widget class="QLabel" name="ties">
    <property name="geometry">
     <rect>
-     <x>570</x>
-     <y>450</y>
+     <x>600</x>
+     <y>440</y>
      <width>63</width>
      <height>20</height>
     </rect>
