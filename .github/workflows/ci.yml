@@ -24,7 +24,7 @@ jobs:
       - name: Verify Test File Existence
         run: |
           if [ ! -f ./test ]; then
-            echo "Test file not found in the repository!"
+            echo "Test file not found in the repository root!"
             exit 1
           fi
 
@@ -32,6 +32,12 @@ jobs:
         run: |
           qmake
           make
+
+      - name: Run Unit Tests
+        run: |
+          chmod +x ./test
+          ./test
+
 
       - name: Run Unit Tests
         run: ./test
