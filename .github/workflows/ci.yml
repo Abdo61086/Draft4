@@ -16,10 +16,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Install Qt and Required Tools
+      - name: Install Qt and Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y qtbase5-dev qt5-qmake libqt5widgets5 libqt5test5
+          sudo apt-get install -y qtbase5-dev qt5-qmake libqt5widgets5 libqt5test5 xvfb
 
       - name: Build Tests
         run: |
@@ -27,9 +27,8 @@ jobs:
           qmake test.pro
           make
 
-      - name: Run Tests
+      - name: Run Tests in Virtual Display
         run: |
-          ./test/test
+          cd test
+          xvfb-run ./test
 
-          chmod +x ./test
-          ./test
