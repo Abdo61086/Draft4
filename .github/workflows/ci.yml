@@ -16,18 +16,21 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Install Required Tools and Dependencies
+      - name: Install Qt and Tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y qtbase5-dev qt5-qmake libqt5sql5 libqt5sql5-sqlite g++
+          sudo apt-get install -y qtbase5-dev qt5-qmake libqt5widgets5 libqt5test5
 
-      - name: Compile All Unit Test Files
+      - name: Build Test Executable using qmake
         run: |
-          mkdir -p build
-          g++ -I. -Itest -fPIC $(find test -name "tst_*.cpp") -o build/tests.out -lQt5Core -lQt5Test
+          qmake tests.pro -o Makefile
+          make
 
-      - name: Run Unit Tests
+      - name: Run Tests
         run: |
+          chmod +x tests
+          ./tests
+
           chmod +x build/tests.out
           ./build/tests.out
 
