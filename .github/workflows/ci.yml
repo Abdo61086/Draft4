@@ -19,7 +19,14 @@ jobs:
       - name: Install Required Tools and Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y g++ gcc qtbase5-dev qt5-qmake libqt5sql5 libqt5sql5-sqlite
+          sudo apt-get install -y qtbase5-dev qt5-qmake libqt5sql5 libqt5sql5-sqlite
+
+      - name: Verify Test File Existence
+        run: |
+          if [ ! -f ./test ]; then
+            echo "Test file not found in the repository!"
+            exit 1
+          fi
 
       - name: Build Project
         run: |
@@ -27,4 +34,5 @@ jobs:
           make
 
       - name: Run Unit Tests
-        run: ./tests/unit_tests
+        run: ./test
+
