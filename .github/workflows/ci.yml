@@ -16,26 +16,20 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Install Required Tools and Dependencies
+      - name: Install Qt and Required Tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y qtbase5-dev qt5-qmake libqt5sql5 libqt5sql5-sqlite
+          sudo apt-get install -y qtbase5-dev qt5-qmake libqt5widgets5 libqt5test5
 
-      - name: Verify Test File Existence
+      - name: Build Tests
         run: |
-          if [ ! -f Draft4/test/test.pro ]; then
-            echo "Test project file not found in Draft4/test!"
-            exit 1
-          fi
-
-      - name: Build Test Project
-        run: |
-          cd Draft4/test
+          cd test
           qmake test.pro
           make
 
-      - name: Run Unit Tests
+      - name: Run Tests
         run: |
-          cd Draft4/test
+          ./test/test
+
           chmod +x ./test
           ./test
