@@ -23,7 +23,7 @@ jobs:
 
       - name: Verify Test File Existence
         run: |
-          if [ ! -f Draft4/test ]; then
+          if [ ! -f Draft4/test/tst_test1 ]; then
             echo "Test file not found in the repository root!"
             exit 1
           fi
