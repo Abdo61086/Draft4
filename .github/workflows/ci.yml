@@ -1,4 +1,4 @@
-name: CI Pipeline 
+name: CI Pipeline
 
 on:
   push:
@@ -19,26 +19,15 @@ jobs:
       - name: Install Required Tools and Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y qtbase5-dev qt5-qmake libqt5sql5 libqt5sql5-sqlite
+          sudo apt-get install -y qtbase5-dev qt5-qmake libqt5sql5 libqt5sql5-sqlite g++
 
-      - name: Verify Test File Existence
+      - name: Compile All Unit Test Files
         run: |
-          if [ ! -f Draft4/test/tst_test1 ]; then
-            echo "Test file not found in the repository root!"
-            exit 1
-          fi
-
-      - name: Build Project
-        run: |
-          qmake
-          make
+          mkdir -p build
+          g++ -I. -Itest -fPIC $(find test -name "tst_*.cpp") -o build/tests.out -lQt5Core -lQt5Test
 
       - name: Run Unit Tests
         run: |
-          chmod +x ./test
-          ./test
-
-
-      - name: Run Unit Tests
-        run: ./test
+          chmod +x build/tests.out
+          ./build/tests.out
 
