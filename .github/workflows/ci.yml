@@ -23,12 +23,12 @@ jobs:
 
       - name: Build Test Executable using qmake
         run: |
-          qmake tests.pro -o Makefile
+          qmake test.pro -o Makefile
           make
 
       - name: Run Tests
         run: |
-          chmod +x tests
+          chmod +x test
           ./tests
 
           chmod +x build/tests.out
