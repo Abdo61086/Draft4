@@ -31,4 +31,3 @@ jobs:
         run: |
           cd test
           xvfb-run ./test
-
