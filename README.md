@@ -281,6 +281,3 @@ The application will automatically create the database file (`TicTacToe.db`) on 
 - [ ] Machine learning-based AI training
 - [ ] Mobile app port (Android/iOS)
 - [ ] Tournament mode with leaderboards
-
-## License
-This software is free for personal and educational use. You may use, modify, and distribute this software for non-commercial purposes. Commercial use is prohibited without explicit permission.
