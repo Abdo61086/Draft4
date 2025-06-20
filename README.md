@@ -268,13 +268,6 @@ The application will automatically create the database file (`TicTacToe.db`) on 
 - Terminal State Detection: Immediate return on win/loss
 - Symmetry Reduction: Avoids duplicate position evaluations
 
-### Performance Metrics
-| Operation | Easy AI | Hard AI |
-|-----------|---------|---------|
-| Move Calculation | < 100ms | 200-500ms |
-| Database Insert | 10-20ms | 10-20ms |
-| Game Load | < 50ms | < 50ms |
-
 ## Future Enhancements
 - [ ] Online multiplayer support
 - [ ] Cloud-based game synchronization
