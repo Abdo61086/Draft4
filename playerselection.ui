@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>778</width>
-    <height>691</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,15 +19,15 @@
   <widget class="QPushButton" name="pushButton">
    <property name="geometry">
     <rect>
-     <x>100</x>
-     <y>140</y>
-     <width>151</width>
+     <x>110</x>
+     <y>190</y>
+     <width>131</width>
      <height>131</height>
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">color: rgb(255, 255, 255);
-background-color: rgba(0, 0, 0,0);
+    <string notr="true">color: rgb(0, 0, 0);
+background-color: rgba(255, 255, 255,0);
 border:none</string>
    </property>
    <property name="text">
@@ -38,14 +38,14 @@ border:none</string>
    <property name="geometry">
     <rect>
      <x>560</x>
-     <y>170</y>
-     <width>151</width>
+     <y>140</y>
+     <width>161</width>
      <height>131</height>
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">color: rgb(255, 255, 255);
-background-color: rgba(0, 0, 0, 0);
+    <string notr="true">color: rgb(0, 0, 0);
+background-color: rgba(255, 255, 255,0);
 border:none</string>
    </property>
    <property name="text">
@@ -55,15 +55,15 @@ border:none</string>
   <widget class="QPushButton" name="pushButton_4">
    <property name="geometry">
     <rect>
-     <x>570</x>
+     <x>80</x>
      <y>330</y>
-     <width>141</width>
-     <height>141</height>
+     <width>161</width>
+     <height>91</height>
     </rect>
    </property>
    <property name="styleSheet">
     <string notr="true">color: rgb(0, 0, 0);
-background-color: rgba(0, 0, 0, 0);
+background-color: rgba(255, 255, 255,0);
 border:none</string>
    </property>
    <property name="text">
@@ -73,9 +73,9 @@ border:none</string>
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>100</x>
+     <x>290</x>
      <y>360</y>
-     <width>611</width>
+     <width>221</width>
      <height>31</height>
     </rect>
    </property>
@@ -86,9 +86,6 @@ border:none</string>
      <bold>false</bold>
     </font>
    </property>
-   <property name="styleSheet">
-    <string notr="true">color: rgb(255,255,255);</string>
-   </property>
    <property name="text">
     <string>TextLabel</string>
    </property>
@@ -96,9 +93,9 @@ border:none</string>
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>100</x>
+     <x>290</x>
      <y>180</y>
-     <width>611</width>
+     <width>221</width>
      <height>51</height>
     </rect>
    </property>
@@ -112,9 +109,6 @@ border:none</string>
    <property name="layoutDirection">
     <enum>Qt::LayoutDirection::LeftToRight</enum>
    </property>
-   <property name="styleSheet">
-    <string notr="true">color: rgb(255,255,255);</string>
-   </property>
    <property name="text">
     <string>TextLabel</string>
    </property>
@@ -122,15 +116,15 @@ border:none</string>
   <widget class="QPushButton" name="pushButton_3">
    <property name="geometry">
     <rect>
-     <x>100</x>
-     <y>340</y>
-     <width>151</width>
-     <height>131</height>
+     <x>560</x>
+     <y>320</y>
+     <width>161</width>
+     <height>121</height>
     </rect>
    </property>
    <property name="styleSheet">
     <string notr="true">color: rgb(0, 0, 0);
-background-color: rgba(0, 0, 0, 0);
+background-color: rgba(255, 255, 255,0);
 border:none</string>
    </property>
    <property name="text">
@@ -140,15 +134,15 @@ border:none</string>
   <widget class="QPushButton" name="pushButton_5">
    <property name="geometry">
     <rect>
-     <x>310</x>
-     <y>270</y>
-     <width>161</width>
+     <x>280</x>
+     <y>260</y>
+     <width>251</width>
      <height>51</height>
     </rect>
    </property>
    <property name="styleSheet">
     <string notr="true">color: rgb(0, 0, 0);
-background-color: rgba(0, 0, 0, 0);
+background-color: rgba(255, 255, 255,0);
 border:none</string>
    </property>
    <property name="text">
@@ -158,15 +152,15 @@ border:none</string>
   <widget class="QPushButton" name="pushButton_6">
    <property name="geometry">
     <rect>
-     <x>300</x>
+     <x>330</x>
      <y>430</y>
-     <width>181</width>
-     <height>51</height>
+     <width>131</width>
+     <height>71</height>
     </rect>
    </property>
    <property name="styleSheet">
     <string notr="true">color: rgb(0, 0, 0);
-background-color: rgba(0, 0, 0, 0);
+background-color: rgba(255, 255, 255,0);
 border:none</string>
    </property>
    <property name="text">
@@ -176,15 +170,15 @@ border:none</string>
   <widget class="QPushButton" name="pushButton_7">
    <property name="geometry">
     <rect>
-     <x>120</x>
-     <y>250</y>
-     <width>201</width>
-     <height>171</height>
+     <x>100</x>
+     <y>260</y>
+     <width>241</width>
+     <height>141</height>
     </rect>
    </property>
    <property name="styleSheet">
     <string notr="true">color: rgb(0, 0, 0);
-background-color: rgba(0, 0, 0,0);
+background-color: rgba(255, 255, 255,0);
 border:none</string>
    </property>
    <property name="text">
@@ -196,13 +190,13 @@ border:none</string>
     <rect>
      <x>460</x>
      <y>230</y>
-     <width>191</width>
+     <width>241</width>
      <height>171</height>
     </rect>
    </property>
    <property name="styleSheet">
     <string notr="true">color: rgb(0, 0, 0);
-background-color: rgba(0, 0, 0,0);
+background-color: rgba(255, 255, 255,0);
 border:none</string>
    </property>
    <property name="text">
@@ -212,21 +206,52 @@ border:none</string>
   <widget class="QPushButton" name="pushButton_9">
    <property name="geometry">
     <rect>
-     <x>300</x>
-     <y>430</y>
-     <width>181</width>
+     <x>270</x>
+     <y>440</y>
+     <width>271</width>
      <height>51</height>
     </rect>
    </property>
    <property name="styleSheet">
     <string notr="true">color: rgb(0, 0, 0);
-background-color: rgba(0, 0, 0,0);
+background-color: rgba(255, 255, 255,0);
 border:none</string>
    </property>
    <property name="text">
     <string/>
    </property>
   </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>600</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="pixmap">
+    <pixmap>07_Singleplayer_WhoisX.png</pixmap>
+   </property>
+   <property name="scaledContents">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <zorder>label</zorder>
+  <zorder>pushButton</zorder>
+  <zorder>pushButton_2</zorder>
+  <zorder>pushButton_4</zorder>
+  <zorder>label_4</zorder>
+  <zorder>label_3</zorder>
+  <zorder>pushButton_3</zorder>
+  <zorder>pushButton_5</zorder>
+  <zorder>pushButton_6</zorder>
+  <zorder>pushButton_7</zorder>
+  <zorder>pushButton_8</zorder>
+  <zorder>pushButton_9</zorder>
  </widget>
  <resources/>
  <connections/>

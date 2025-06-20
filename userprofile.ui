@@ -107,9 +107,6 @@ border:none
    <property name="layoutDirection">
     <enum>Qt::LayoutDirection::LeftToRight</enum>
    </property>
-   <property name="styleSheet">
-    <string notr="true">color: rgb( 255,255, 255);</string>
-   </property>
    <property name="text">
     <string>TextLabel</string>
    </property>
@@ -119,7 +116,7 @@ border:none
     <rect>
      <x>400</x>
      <y>300</y>
-     <width>141</width>
+     <width>291</width>
      <height>51</height>
     </rect>
    </property>
@@ -132,9 +129,6 @@ border:none
    </property>
    <property name="layoutDirection">
     <enum>Qt::LayoutDirection::LeftToRight</enum>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">color: rgb( 255,255, 255)</string>
    </property>
    <property name="text">
     <string>TextLabel</string>

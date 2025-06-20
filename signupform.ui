@@ -14,7 +14,7 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">color: rgb(0,0, 0)</string>
+   <string notr="true">background-color: rgb(255, 255, 255);</string>
   </property>
   <widget class="QLineEdit" name="usernameEdit">
    <property name="geometry">
@@ -27,14 +27,14 @@
    </property>
    <property name="styleSheet">
     <string notr="true">background-color: rgba(255, 255, 255,0);
-color: rgb( 255,255, 255);
+color: rgb(0, 0, 0);
 border:none</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="passwordEdit">
    <property name="geometry">
     <rect>
-     <x>450</x>
+     <x>460</x>
      <y>330</y>
      <width>231</width>
      <height>41</height>
@@ -42,7 +42,7 @@ border:none</string>
    </property>
    <property name="styleSheet">
     <string notr="true">background-color: rgba(255, 255, 255,0);
-color: rgb( 255,255, 255);
+color: rgb(0, 0, 0);
 border:none</string>
    </property>
    <property name="echoMode">
@@ -60,7 +60,7 @@ border:none</string>
    </property>
    <property name="styleSheet">
     <string notr="true">background-color: rgba(255, 255, 255,0);
-color: rgb( 255,255, 255);
+color: rgb(0, 0, 0);
 border:none</string>
    </property>
    <property name="echoMode">
@@ -78,6 +78,7 @@ border:none</string>
    </property>
    <property name="styleSheet">
     <string notr="true">background-color: rgba(255, 255, 255,0);
+color: rgb(0, 0, 0);
 border:none</string>
    </property>
    <property name="text">
