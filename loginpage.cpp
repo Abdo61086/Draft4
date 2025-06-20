@@ -56,41 +56,52 @@ void LoginPage::Initialize()
 
 void LoginPage::on_pushButton_clicked()
 {
-    username=ui->lineEdit_user->text();
-    password=ui->lineEdit_pass->text();
+    username = ui->lineEdit_user->text().trimmed();
+    password = ui->lineEdit_pass->text();
+
+    // ✅ Check for empty fields
+    if (username.isEmpty() || password.isEmpty()) {
+        QMessageBox::warning(this, "Input Error", "Please enter both username and password.");
+        return;  // Stop further processing
+    }
+
     QByteArray hashedPassword = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha256);
+
     QSqlQuery qry;
     qry.prepare("SELECT * FROM Players WHERE username = :username AND password = :password");
     qry.bindValue(":username", username);
     qry.bindValue(":password", hashedPassword.toHex());
-    if(qry.exec())
-    {
-        int count=0;
-        while(qry.next())
-        {
+
+    if (qry.exec()) {
+        int count = 0;
+        while (qry.next()) {
             count++;
         }
-        if(count==1)
-        {
-            QMessageBox::information(this, "Success", "SignIn successful,Hello "+username);
 
-            if(first==1)
-            {
+        if (count == 1) {
+            QMessageBox::information(this, "Success", "SignIn successful, Hello " + username);
+
+            if (first == 1) {
                 first = 2;
             }
-            if (first ==0)
-            {
+            if (first == 0) {
                 username1 = username;
                 password1 = password;
                 first = 1;
             }
-            userprofile=new userProfile;
-            userprofile->show();
 
+            userprofile = new userProfile;
+            userprofile->show();
+            this->close();
+        } else {
+            QMessageBox::critical(this, "Error", "Username or password is incorrect.");
+            return;  // Stop further processing
         }
-        if(count<1)
-            QMessageBox::critical(this, "Error", "username or password is incorrect.");
+    } else {
+        QMessageBox::critical(this, "Database Error", "Query execution failed.");
+
     }
+
+
     this->close();
 }
-
