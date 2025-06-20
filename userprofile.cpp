@@ -36,7 +36,7 @@ void userProfile::Initialize()
     backgroundLabel->setPixmap(backgroundImage.scaled(backgroundLabel->size(), Qt::IgnoreAspectRatio));
     ui->label->setText(username1);
     QByteArray hashedPassword = QCryptographicHash::hash(password1.toUtf8(), QCryptographicHash::Sha256);
-    ui->label_2->setText(hashedPassword);
+    ui->label_2->setText("**********");
     }
     else if(first == 2)
     {
@@ -44,7 +44,7 @@ void userProfile::Initialize()
         backgroundLabel->setPixmap(backgroundImage.scaled(backgroundLabel->size(), Qt::IgnoreAspectRatio));
         ui->label->setText(username);
         QByteArray hashedPassword = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha256);
-        ui->label_2->setText(hashedPassword);
+        ui->label_2->setText("**********");
     }
 
     // Ensure the label resizes with the window
