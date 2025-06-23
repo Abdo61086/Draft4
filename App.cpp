@@ -34,7 +34,8 @@ bool TicTacToe::isWinner(const vector<vector<unsigned char>>& board, unsigned ch
     return false;
 }
 
-int TicTacToe::evaluate(const vector<vector<unsigned char>>& board, char state_F) const {
+/*
+   int TicTacToe::evaluate(const vector<vector<unsigned char>>& board, char state_F) const {
     if (state_F == PLAYER_O) {
         if (isWinner(board, PLAYER_O)) return 100;
         if (isWinner(board, PLAYER_X)) return 0;
@@ -49,8 +50,26 @@ int TicTacToe::evaluate(const vector<vector<unsigned char>>& board, char state_F
 
     return 50;
 }
-
+*/
 Move TicTacToe::findBestMove(vector<vector<unsigned char>>& board, unsigned char state_2) {
+    // Special case for hard mode: if human started and took a corner, take center
+    if (difficulty == HARD && RemPlays == 8 && StartPLayer == PLAYER_X) {
+        // Check if human took a corner
+        bool humanTookCorner = false;
+        if ((board[0][0] == PLAYER_X || board[0][2] == PLAYER_X ||
+             board[2][0] == PLAYER_X || board[2][2] == PLAYER_X) &&
+            board[1][1] == EMPTY_CELL) {
+            humanTookCorner = true;
+        }
+
+        if (humanTookCorner) {
+            Move centerMove;
+            centerMove.row = 1;
+            centerMove.col = 1;
+            return centerMove;
+        }
+    }
+
     int bestScore = INT_MIN;
     Move bestMove;
     bestMove.row = -1;
@@ -82,38 +101,11 @@ void TicTacToe::humanMove(vector<vector<unsigned char>>& board, unsigned char pl
 }
 
 void TicTacToe::computerMove(unsigned char state) {
-    if (difficulty == EASY) {
-        // ==== NEW: Random move selection for Easy mode ====
-        vector<Move> possibleMoves;
-        for (int i = 0; i < BOARD_SIZE; ++i) {
-            for (int j = 0; j < BOARD_SIZE; ++j) {
-                if (board[i][j] == EMPTY_CELL) {
-                    possibleMoves.push_back({i, j}); // Collect all empty cells
-                }
-            }
-        }
-
-        if (!possibleMoves.empty()) {
-            // Pick a random move
-            int randomIndex = rand() % possibleMoves.size();
-            Move randomMove = possibleMoves[randomIndex];
-
-            // Execute the random move
-            board[randomMove.row][randomMove.col] = currentPlayerClass;
-            currentMove = randomMove;
-            currentPlayerClass = (currentPlayerClass == PLAYER_X) ? PLAYER_O : PLAYER_X;
-            RemPlays--;
-            return; // Exit early (no Minimax in Easy mode)
-        }
-    }
-    // ==== Original Minimax logic (Hard mode) ====
-    else if (difficulty == HARD) {
-        Move bestMove = findBestMove(board, state);
-        board[bestMove.row][bestMove.col] = currentPlayerClass;
-        currentMove = bestMove;
-        currentPlayerClass = (currentPlayerClass == PLAYER_X) ? PLAYER_O : PLAYER_X;
-        RemPlays--;
-    }
+    Move bestMove = findBestMove(board, state);
+    board[bestMove.row][bestMove.col] = currentPlayerClass;
+    currentMove = bestMove;
+    currentPlayerClass = (currentPlayerClass == PLAYER_X) ? PLAYER_O : PLAYER_X;
+    RemPlays--;
 }
 
 bool TicTacToe::isBoardFull(const vector<vector<unsigned char>>& board) const {
@@ -142,23 +134,55 @@ int TicTacToe::minimax(vector<vector<unsigned char>>& board, int depth, bool isM
     unsigned char opponent = (state_F == PLAYER_X) ? PLAYER_O : PLAYER_X;
 
     if (difficulty == EASY) {
-        // Introduce randomness (30% chance to make a random move)
-        if (rand() % 100 < 30) { // Adjust probability (e.g., 30% random, 70% Minimax)
-            vector<Move> possibleMoves;
-            for (int i = 0; i < BOARD_SIZE; ++i) {
-                for (int j = 0; j < BOARD_SIZE; ++j) {
-                    if (board[i][j] == EMPTY_CELL) {
-                        possibleMoves.push_back({i, j});
+            int boardVal = -evaluateBoard(board, state_F);
+            if (boardVal == 10 || boardVal == -10) {
+                return boardVal;
+            }
+            if (isBoardFull(board)) {
+                return 0;
+            }
+
+            if (isMaximizing) {
+                int worstScore = INT_MIN;
+                for (int i = 0; i < BOARD_SIZE; ++i) {
+                    for (int j = 0; j < BOARD_SIZE; ++j) {
+                        if (board[i][j] == EMPTY_CELL) {
+                            board[i][j] = state_F;
+                            int score = minimax(board, depth + 1, false, alpha, beta, state_F);
+                            board[i][j] = EMPTY_CELL;
+                            worstScore = max(worstScore, score);
+                            alpha = max(alpha, score);
+                            if (beta <= alpha) {
+                                return worstScore;
+                            }
+                        }
                     }
                 }
+                return worstScore;
+            } else {
+                int bestScore = INT_MAX;
+                for (int i = 0; i < BOARD_SIZE; ++i) {
+                    for (int j = 0; j < BOARD_SIZE; ++j) {
+                        if (board[i][j] == EMPTY_CELL) {
+                            board[i][j] = opponent;
+                            int score = minimax(board, depth + 1, true, alpha, beta, state_F);
+                            board[i][j] = EMPTY_CELL;
+                            bestScore = min(bestScore, score);
+                            beta = min(beta, score);
+                            if (beta <= alpha) {
+                                return bestScore;
+                            }
+                        }
+                    }
+                }
+                return bestScore;
             }
-            if (!possibleMoves.empty()) {
-                int randomIndex = rand() % possibleMoves.size();
-                return 0; // Neutral score for random moves
-            }
+    }
+        else if (difficulty == HARD) {
+        int boardVal = evaluateBoard(board, state_F);
+        if (boardVal == 10 || boardVal == -10) {
+            return boardVal;
         }
-
-        // Fallback to Minimax if randomness is not triggered
         if (isBoardFull(board)) {
             return 0;
         }
@@ -198,12 +222,12 @@ int TicTacToe::minimax(vector<vector<unsigned char>>& board, int depth, bool isM
             }
             return bestScore;
         }
-    } else if (difficulty == HARD) {
-        // Original Hard mode logic (unchanged)
-        // ...
     }
+
+    // Default return value (if difficulty is not EASY or HARD)
     return 0;
 }
+
 int TicTacToe::evaluateBoard(const vector<vector<unsigned char>> &board, unsigned char state_F) {
     // Evaluate rows, columns, and diagonals for wins
     // Return +10 if 'state_F' wins, -10 if opponent wins, and 0 for no win
